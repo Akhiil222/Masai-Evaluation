@@ -1,31 +1,40 @@
-document.addEventListener("DOMContentLoaded",() => {loadRecipes();}
-);
-document,getElementById("recipe-form").addEventListener("submit",function (e){
-    e.preventDefault();
-    const recipeName=document.getElementById("recipe-name").value.trim();
-    const ingredients = document.getElementById("recipe-ingredients").value.trim();
-    const category = document.getElementById("recipe-category").value.trim();
-    const steps  = document.getElementById("recipe-steps").value.trim();
-    if(!recipeName || ingredients || !steps){
-        alert("Please fill all required fields.");
-        return;
-    }
-    const recipe={
-        name: recipeName,
-        ingredients: ingredients.split("\n"),
-        category:category,
-        steps:formatText(steps),
-    };
-    saveRecipe(recipe);
-    this.reset();
+document.getElementById("recipe-form").addEventListener("submit", function(event) {
+    event.preventDefault();
+    const name = document.getElementById("recipe-name").value;
+    const ingredients = document.getElementById("ingredients").value;
+    const category = document.getElementById("category").value;
+    const steps = document.getElementById("steps").value;
+    const recipe = { name, ingredients, category, steps };
+    
+    let recipes = JSON.parse(localStorage.getItem("recipes")) || [];
+    recipes.push(recipe);
+    localStorage.setItem("recipes", JSON.stringify(recipes));
+    displayRecipes();
 });
 
-function saveRecipe(recipe){
-    let recipes=JSON.parset(localStorage.getItem("recipes")) || [];
-    recipes.push(recipe);
-    localStorage.setItem("recipes",JSON.stringify(recipes));
-    loadRecipes();
+function displayRecipes(filter = "All") {
+    const recipeContainer = document.getElementById("recipe-container");
+    recipeContainer.innerHTML = "";
+    let recipes = JSON.parse(localStorage.getItem("recipes")) || [];
+    recipes = filter === "All" ? recipes : recipes.filter(r => r.category === filter);
+    
+    recipes.forEach(recipe => {
+        const div = document.createElement("div");
+        div.className = "recipe-card";
+        div.innerHTML = `<h3>${recipe.name}</h3>
+            <p><strong>Category:</strong> ${recipe.category}</p>
+            <p><strong>Ingredients:</strong> ${recipe.ingredients}</p>
+            <p><strong>Steps:</strong> ${recipe.steps}</p>`;
+        recipeContainer.appendChild(div);
+    });
 }
-function loadRecipes(category="All"){
-    const
-}
+
+document.getElementById("filter").addEventListener("change", function() {
+    displayRecipes(this.value);
+});
+
+document.getElementById("dark-mode-toggle").addEventListener("click", function() {
+    document.body.classList.toggle("dark-mode");
+});
+
+displayRecipes();
